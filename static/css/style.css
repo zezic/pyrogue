@@ -1,0 +1,17 @@
+body {
+  font-family: 'Anka/Coder';
+  margin: 0;
+}
+* {
+  font-family: inherit;
+}
+.level {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.level .rows {
+  white-space: pre;
+  font-size: 36px;
+}

@@ -27,7 +27,7 @@ engine.add_level(level, 0)
 
 @app.route('/')
 async def index_page(request):
-    return templates.TemplateResponse('index.html.j2', {'request': request})
+    return templates.TemplateResponse('index.html', {'request': request})
 
 
 @app.route('/api/level')

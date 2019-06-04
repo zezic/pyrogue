@@ -1,8 +1,8 @@
 const keyBindings = [
-  { keys: ['ArrowUp', 'w'], action: 'move', data: { x: 0, y: -1 } },
-  { keys: ['ArrowLeft', 'a'], action: 'move', data: { x: -1, y: 0 } },
-  { keys: ['ArrowDown', 's'], action: 'move', data: { x: 0, y: 1 } },
-  { keys: ['ArrowRight', 'd'], action: 'move', data: { x: 1, y: 0 } }
+  { keys: ['ArrowUp', 'w'], action: 'move', data: [ 0, -1 ] },
+  { keys: ['ArrowLeft', 'a'], action: 'move', data: [ -1, 0 ] },
+  { keys: ['ArrowDown', 's'], action: 'move', data: [ 0, 1 ] },
+  { keys: ['ArrowRight', 'd'], action: 'move', data: [ 1, 0 ] }
 ]
 
 class LevelRenderer {
@@ -42,11 +42,11 @@ class PyRogueClient {
     const level = await this.fetchLevel()
     this.renderer.render(level)
   }
-  async requestMove (direction) {
+  async requestMove (magnitude) {
     try {
-      await fetch('/api/move', {
+      await fetch('/api/walk', {
         method: 'POST',
-        body: JSON.stringify({ direction })
+        body: JSON.stringify({ magnitude })
       })
       await this.syncState()
     } catch (error) {

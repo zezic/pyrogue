@@ -3,6 +3,9 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
+from engine.engine import Engine
+from engine.level import Level
+from engine.objects import PlayerObject, GoldObject
 
 templates = Jinja2Templates(directory='templates')
 
@@ -10,41 +13,16 @@ app = Starlette(debug=True)
 app.mount('/static', StaticFiles(directory='static'), name='static')
 
 
-class Level():
-    def __init__(self):
-        self.height = 5
-        self.width = 5
-        self.map = [
-            ['.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.'],
-            ['.', '.', '@', '.', '.'],
-            ['.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.']
-        ]
-        self.objects = {
-            '@': {
-                'position': {
-                    'x': 2,
-                    'y': 2
-                }
-            }
-        }
+engine = Engine()
 
-    def move(self, direction):
-        player = self.objects.get('@')
-        position = player.get('position')
-        x, y = position.get('x'), position.get('y')
-        self.map[y][x] = '.'
+level = Level((13, 7))
+player_object = PlayerObject()
+level.add_object(player_object, (4, 3))
+level.add_object(GoldObject(), (2, 3))
+level.add_object(GoldObject(), (6, 2))
+level.add_object(GoldObject(), (10, 5))
 
-        x_dir, y_dir = direction.get('x'), direction.get('y')
-        position.update({
-            'x': (x + x_dir) % self.width,
-            'y': (y + y_dir) % self.height
-        })
-        self.map[position.get('y')][position.get('x')] = '@'
-
-
-level = Level()
+engine.add_level(level, 0)
 
 
 @app.route('/')
@@ -54,13 +32,17 @@ async def index_page(request):
 
 @app.route('/api/level')
 async def level_api(request):
-    return JSONResponse(level.map)
+    rendered = [
+        [obj.render() if obj else '.' for obj in row]
+        for row in level.object_map
+    ]
+    return JSONResponse(rendered)
 
 
-@app.route('/api/move', methods=['POST'])
-async def moving_api(request):
+@app.route('/api/walk', methods=['POST'])
+async def walk_api(request):
     data = await request.json()
-    level.move(data.get('direction'))
+    engine.walk(0, player_object.uuid, data.get('magnitude'))
     return JSONResponse({'status': 'success'})
 
 
